@@ -1,32 +1,44 @@
 evl_TricksDB = evl_TricksDB or {}
 
+
+local frame = CreateFrame("Frame")
 local targets = {"Primary", "Secondary", "Tertiary"}
 local macroName = "Evl's Tricks"
 
 local function generateMacro()
-	local body = "#showtooltip Tricks of the Trade\n/cast "
-	
-	for _, target in pairs(targets) do
-		local name = evl_TricksDB[target]
+	if InCombatLockdown() then
+		frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 
-		if name then 
-			body = body .. format("[@%s,nodead,nomod]", name)
+		print(format("Tricks: In combat, macro will be updated after leaving combat."))
+	else
+		frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+	
+		local body = "#showtooltip Tricks of the Trade\n/cast "
+	
+		for _, target in pairs(targets) do
+			local name = evl_TricksDB[target]
+
+			if name then 
+				body = body .. format("[@%s,nodead,nomod]", name)
+			end
+		end
+	
+		body = body .. "[@targettarget,help] Tricks of the Trade"
+
+		local index = GetMacroIndexByName(macroName)
+
+		if index > 0 then
+			EditMacro(index, macroName, 1, body, true)
+		else
+			index = CreateMacro(macroName, 1, body, true)
+			PickupMacro(index)
+
+			print(format("Tricks: Created new macro '%s'", macroName))
 		end
 	end
-	
-	body = body .. "[@targettarget,help]"
-
-	local index = GetMacroIndexByName(macroName)
-
-	if index > 0 then
-		EditMacro(index, macroName, 1, body, true)
-	else
-		index = CreateMacro(macroName, 1, body, true)
-		PickupMacro(index)
-
-		print(format("Tricks: Created new macro '%s'", macroName))
-	end
 end
+
+frame:SetScript("OnEvent", generateMacro)
 
 function EvlTricks_Set(type)
 	local unit = "target"
@@ -48,6 +60,8 @@ function EvlTricks_Set(type)
 
 		evl_TricksDB[type] = name
 		generateMacro()
+		
+		SendChatMessage("You're getting my Tricks of the Trade!", "WHISPER", nil, name)
 		
 		print(format("Tricks: %s target is now %s", type, name))
 	end
