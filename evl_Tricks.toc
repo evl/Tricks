@@ -1,0 +1,6 @@
+## Interface: 40000
+## Title: Evl's Tricks
+## Author: Evl
+## SavedVariablesPerCharacter: evl_TricksDB
+
+evl_Tricks.lua

@@ -1,0 +1,5 @@
+<Bindings>
+	<Binding name="Set Primary Recipient" header="EVLTRICKS">EvlTricks_Set("Primary")</Binding>
+	<Binding name="Set Secondary Recipient">EvlTricks_Set("Secondary")</Binding>
+	<Binding name="Set Tertiary Recipient">EvlTricks_Set("Tertiary")</Binding>
+</Bindings>
