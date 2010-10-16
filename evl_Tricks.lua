@@ -1,5 +1,6 @@
 evl_TricksDB = evl_TricksDB or {}
 
+BINDING_HEADER_EVLTRICKS = "Evl's Tricks"
 
 local frame = CreateFrame("Frame")
 local targets = {"Primary", "Secondary", "Tertiary"}
@@ -53,8 +54,8 @@ function EvlTricks_Set(type)
 		else
 			print("Tricks: No target selected")
 		end
-	elseif not UnitIsPlayer(unit) or not UnitIsFriend("player", unit) then
-		print("Tricks: Target must be a friendly player")
+	elseif not UnitInParty(unit) and not UnitInRaid(unit) then
+		print("Tricks: Target must be a player in your party/raid")
 	else
 		local name = UnitName(unit)
 
