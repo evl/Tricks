@@ -55,6 +55,8 @@ local function generateMacro()
 
 			print(format("Tricks: Created new macro '%s'", macroName))
 		end
+		
+		display:SetText(text and text or "")
 	end
 end
 
