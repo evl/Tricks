@@ -2,9 +2,18 @@ evl_TricksDB = evl_TricksDB or {}
 
 BINDING_HEADER_EVLTRICKS = "Evl's Tricks"
 
-local frame = CreateFrame("Frame")
 local targets = {"Primary", "Secondary", "Tertiary"}
 local macroName = "Evl's Tricks"
+
+local frame = CreateFrame("Frame", nil, UIParent)
+frame:SetPoint("BOTTOMLEFT", GeneralDockManager, "TOPLEFT", 3, 0)
+frame:SetPoint("RIGHT", GeneralDockManager)
+frame:SetHeight(10)
+
+local display = frame:CreateFontString(nil, "OVERLAY")
+display:SetPoint("LEFT", frame)
+display:SetShadowOffset(0.7, -0.7)
+display:SetFont(STANDARD_TEXT_FONT, 10)
 
 local function generateMacro()
 	if InCombatLockdown() then
@@ -15,12 +24,22 @@ local function generateMacro()
 		frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
 	
 		local body = "#showtooltip Tricks of the Trade\n/cast "
+		local text
 	
 		for _, target in pairs(targets) do
 			local name = evl_TricksDB[target]
 
-			if name then 
-				body = body .. format("[@%s,nodead,nomod]", name)
+			if name then
+				local _, classId = UnitClass(name)
+
+				if classId then
+					local color = RAID_CLASS_COLORS[classId]
+
+					body = body .. format("[@%s,nodead,nomod]", name)
+					text = (text and text .. ", " or "") .. format("|cff%02x%02x%02x%s|r", color.r * 255, color.g * 255, color.b * 255, name)
+				else
+					print(format("Tricks: Warning %s target does not exist (%s)", target, name))
+				end
 			end
 		end
 	
