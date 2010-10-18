@@ -23,7 +23,7 @@ local function generateMacro()
 	else
 		frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
 	
-		local body = "#showtooltip Tricks of the Trade\n/cast "
+		local body = "#showtooltip Tricks of the Trade\n/cast [help] "
 		local text
 	
 		for _, target in pairs(targets) do
