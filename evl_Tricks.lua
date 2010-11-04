@@ -2,6 +2,7 @@ evl_TricksDB = evl_TricksDB or {}
 
 BINDING_HEADER_EVLTRICKS = "Evl's Tricks"
 
+local db = evl_TricksDB
 local targets = {"Primary", "Secondary", "Tertiary"}
 local macroName = "Evl's Tricks"
 
@@ -18,8 +19,6 @@ display:SetFont(STANDARD_TEXT_FONT, 10)
 local function generateMacro()
 	if InCombatLockdown() then
 		frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-
-		print(format("Tricks: In combat, macro will be updated after leaving combat."))
 	else
 		frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
 	
@@ -27,7 +26,7 @@ local function generateMacro()
 		local text
 	
 		for _, target in pairs(targets) do
-			local name = evl_TricksDB[target]
+			local name = db[target]
 
 			if name then
 				local _, classId = UnitClass(name)
@@ -35,10 +34,8 @@ local function generateMacro()
 				if classId then
 					local color = RAID_CLASS_COLORS[classId]
 
-					body = body .. format("[@%s,nodead,nomod]", name)
+					body = body .. format("[@%s,exists,nodead,nomod]", name)
 					text = (text and text .. ", " or "") .. format("|cff%02x%02x%02x%s|r", color.r * 255, color.g * 255, color.b * 255, name)
-				else
-					print(format("Tricks: Warning %s target does not exist (%s)", target, name))
 				end
 			end
 		end
@@ -61,17 +58,19 @@ local function generateMacro()
 end
 
 frame:SetScript("OnEvent", generateMacro)
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+frame:RegisterEvent("PARTY_MEMBERS_CHANGED")
 
-function EvlTricks_Set(type)
+function EvlTricks_Set(target)
 	local unit = "target"
-	local previousName = evl_TricksDB[type]
+	local previousName = db[target]
 	
 	if not UnitExists(unit) then
 		if previousName then
-			evl_TricksDB[type] = nil
+			db[target] = nil
 			generateMacro()
 
-			print(format("Tricks: Cleared %s target (%s)", type:lower(), previousName))
+			print(format("Tricks: Cleared %s target (%s)", target:lower(), previousName))
 		else
 			print("Tricks: No target selected")
 		end
@@ -79,12 +78,29 @@ function EvlTricks_Set(type)
 		print("Tricks: Target must be a player in your party/raid")
 	else
 		local name = UnitName(unit)
+		
+		if previousName == name then
+			print(format("Tricks: %s is already your %s target", name, target))
+		else
+			for _, existingTarget in pairs(targets) do
+				if db[existingTarget] == name then
+					db[existingTarget] = nil
+				end
+			end
+		end
+		
+		-- Make sure the target isn't already set as another priority
+		for _, existingTarget in pairs(targets) do
+			if db[existingTarget] == name then
+				db[existingTarget] = nil
+			end
+		end
 
-		evl_TricksDB[type] = name
+		db[target] = name
 		generateMacro()
 		
-		SendChatMessage("You're getting my Tricks of the Trade!", "WHISPER", nil, name)
+		--SendChatMessage("You're getting my Tricks of the Trade!", "WHISPER", nil, name)
 		
-		print(format("Tricks: %s target is now %s", type, name))
+		print(format("Tricks: %s target is now %s", target, name))
 	end
 end
